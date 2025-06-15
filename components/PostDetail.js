@@ -128,7 +128,7 @@ export default function PostDetail({ post: initialPost, commentsCount }) {
               disabled={loading}
               className={`flex items-center space-x-1 px-3 py-1 rounded-lg transition-transform duration-200 ${
                 post.favorited
-                  ? "bg-red-100 text-red-600"
+                  ? "bg-red-100 text-red-500"
                   : "bg-gray-100 text-gray-600 hover:bg-gray-200"
               } ${
                 loading ? "opacity-50 cursor-not-allowed" : "hover:scale-105"
