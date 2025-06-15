@@ -8,12 +8,14 @@ export const metadata = {
     default: "GRAY",
     template: "%s | GRAY",
   },
-  description: "GRAY – A home for curious minds to publish and explore authentic stories",
+  description:
+    "GRAY – A home for curious minds to publish and explore authentic stories",
   keywords: ["GRAY", "blog", "articles", "community", "intuition"],
   authors: [{ name: "Gray", url: "https://gray.com" }],
   openGraph: {
     title: "GRAY",
-    description: "GRAY – A home for curious minds to publish and explore authentic stories",
+    description:
+      "GRAY – A home for curious minds to publish and explore authentic stories",
     url: "https://your-domain.com",
     siteName: "GRAY",
     images: [
@@ -30,7 +32,8 @@ export const metadata = {
   twitter: {
     card: "summary_large_image",
     title: "GRAY",
-    description: "GRAY – A home for curious minds to publish and explore authentic stories",
+    description:
+      "GRAY – A home for curious minds to publish and explore authentic stories",
     images: ["/imaes/image.png"],
   },
   icons: {
@@ -38,12 +41,12 @@ export const metadata = {
     shortcut: "/favicon.ico",
     apple: "/apple-touch-icon.png",
   },
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
-    { media: "(prefers-color-scheme: dark)", color: "#000000" },
-  ],
   manifest: "/site.webmanifest",
   viewport: {
+    themeColor: [
+      { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+      { media: "(prefers-color-scheme: dark)", color: "#000000" },
+    ],
     width: "device-width",
     initialScale: 1,
   },
