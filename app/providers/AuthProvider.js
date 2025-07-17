@@ -30,9 +30,6 @@ export function AuthProvider({ children }) {
     setUser(data.data);
   };
 
-  const set = async(user)=>{
-    setUser(user)
-  }
 
   // Logout: clear cookies via our API
   const logout = async () => {

@@ -1,32 +1,25 @@
-// components/PostCard.jsx
 "use client";
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import useSWR from "swr";
 import api from "@/lib/api";
-import {
-  Heart,
-  MessageCircle,
-  Clock,
-  Option,
-  BookOpenTextIcon,
-} from "lucide-react";
+import { Heart, MessageCircle, Clock } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/app/providers/AuthProvider";
 import Image from "next/image";
 import PostCardSkeleton from "./PostCardSkeleton";
+import { toast } from "sonner";
 
 const fetcher = (url) => api.get(url).then((res) => res.data);
 
-export default function PostCard({ post }) {
+export default function PostCard({ post, setLoadingSpinner }) {
   const [favorited, setFavorited] = useState(post.favorited);
   const [count, setCount] = useState(post.favoritesCount);
   const [loading, setLoading] = useState(false);
   const { user: currentUser } = useAuth();
   const router = useRouter();
   const isAuthor = currentUser?.username === post.author;
-
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef(null);
 
@@ -52,18 +45,21 @@ export default function PostCard({ post }) {
   const handleDelete = async () => {
     if (!confirm("Are you sure you want to delete this post?")) return;
     try {
-      await api.delete(`/posts/${post.slug}/`);
+      setLoadingSpinner(true);
+      await api.delete(`/api/posts/${post.slug}/`);
       window.location.reload();
+      setLoadingSpinner(false);
+      toast.success("Post deleted successfully.");
     } catch (err) {
       console.error("Failed to delete:", err);
-      alert("Failed to delete post.");
+      toast.error("Failed to delete post.");
     }
     setMenuOpen(false);
   };
 
   // Fetch comments count
   const { data: commentsData } = useSWR(
-    `/posts/${post.slug}/comments/`,
+    `/api/posts/${post.slug}/comments/`,
     fetcher
   );
   const commentsCount = commentsData?.count || 0;
@@ -73,24 +69,21 @@ export default function PostCard({ post }) {
     setLoading(true);
     try {
       if (favorited) {
-        await api.delete(`/posts/${post.slug}/favorite/`);
+        await api.delete(`/api/posts/${post.slug}/favorite/`);
         setFavorited(false);
         setCount((c) => c - 1);
       } else {
-        await api.post(`/posts/${post.slug}/favorite/`);
+        await api.post(`/api/posts/${post.slug}/favorite/`);
         setFavorited(true);
         setCount((c) => c + 1);
       }
-    } catch {
+    } catch (err) {
       // optional error feedback
+      console.error("favourite failed", err);
     } finally {
       setLoading(false);
     }
   };
-
-  const handleNavigate = ()=>{
-    router.push(`/posts/${post.slug}`)
-  }
 
   // Format date to relative time (e.g., "2 days ago")
   const formatRelativeTime = (dateString) => {
@@ -111,14 +104,14 @@ export default function PostCard({ post }) {
     data: authorProfile,
     error: profErr,
     mutate: mutateProfile,
-  } = useSWR(`/profiles/${post.author}/`, fetcher);
+  } = useSWR(`/api/profiles/${post.author}/`, fetcher);
 
   if (!authorProfile) {
     return <PostCardSkeleton />;
   }
 
   return (
-    <article onClick={handleNavigate} className="border-b relative   border-gray-100 py-8 last:border-0 group hover:bg-gray-50 transition-colors duration-300 rounded-lg px-4">
+    <article className="border-b relative border-gray-100 py-8 last:border-0 group hover:bg-gray-50 transition-colors duration-300 rounded-lg px-4">
       {isAuthor && (
         <div className="absolute top-2 right-2" ref={menuRef}>
           <button
@@ -153,20 +146,27 @@ export default function PostCard({ post }) {
         </div>
       )}
 
-      <div className="flex flex-col md:flex-row gap-6">
+      <div className="flex flex-col md:flex-row gap-6 ">
         {/* Content */}
         <div className="flex-1">
           {/* Author and Date */}
           <div className="flex items-center gap-3 mb-4">
             <Link href={`/profile/${post.author}`} className="flex-shrink-0">
               {authorProfile.image ? (
-                <Image
-                  src={authorProfile.image}
-                  alt={post.author}
-                  width={32}
-                  height={32}
-                  className="w-8 h-8 rounded-full object-cover"
-                />
+                // <Image
+                //   src={
+                //     authorProfile.image.startsWith("http")
+                //       ? authorProfile.image
+                //       : `${API_BASE}${authorProfile.image}`
+                //   }
+                //   alt={post.author}
+                //   width={32}
+                //   height={32}
+                //   className="w-8 h-8 rounded-full object-cover"
+                // />
+                <div className="w-8 h-8 rounded-full bg-gradient-to-r from-gray-800 to-gray-500 flex items-center justify-center text-white font-medium">
+                  {post.author.charAt(0).toUpperCase()}
+                </div>
               ) : (
                 <div className="w-8 h-8 rounded-full bg-gradient-to-r from-gray-800 to-gray-500 flex items-center justify-center text-white font-medium">
                   {post.author.charAt(0).toUpperCase()}
@@ -189,9 +189,9 @@ export default function PostCard({ post }) {
           </div>
 
           {/* Title */}
-          <h2 className="text-2xl font-bold mb-3 group-hover:text-gray-600 transition-colors">
-            <Link href={`/posts/${post.slug}`} className="hover:underline">
-              {post.title}
+          <h2 className="text-2xl font-bold mb-3 group-hover:text-gray-600 transition-colors wrap-anywhere">
+            <Link href={`/posts/${post.slug}`} className="hover:underline wrap-anywhere">
+              {post?.title}
             </Link>
           </h2>
 
@@ -252,38 +252,5 @@ export default function PostCard({ post }) {
         )}
       </div>
     </article>
-  );
-}
-
-const API_BASE =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
-
-function AuthorAvatar({ srcPath, username, size = 32 }) {
-  // srcPath might be "/media/profiles/levrondunk.jpg" or empty
-  const src = srcPath
-    ? srcPath.startsWith("http")
-      ? srcPath
-      : `${API_BASE}${srcPath}`
-    : null;
-
-  if (!src) {
-    // fallback initials/avatar
-    return (
-      <div
-        className="w-[32px] h-[32px] rounded-full bg-gray-300 flex items-center justify-center text-white"
-        style={{ width: size, height: size }}
-      >
-        {username?.[0]?.toUpperCase() || "?"}
-      </div>
-    );
-  }
-  return (
-    <Image
-      src={src}
-      alt={username}
-      width={size}
-      height={size}
-      className="rounded-full object-cover"
-    />
   );
 }

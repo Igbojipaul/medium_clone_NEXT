@@ -1,4 +1,3 @@
-// app/profile/[username]/page.jsx
 "use client";
 
 import { useRef, useState } from "react";
@@ -33,15 +32,14 @@ export default function ProfilePage() {
     data: profile,
     error: profErr,
     mutate: mutateProfile,
-  } = useSWR(`/profiles/${username}/`, fetcher);
+  } = useSWR(`/api/profiles/${username}/`, fetcher);
 
   // User’s posts
   const { data: posts, error: postsErr } = useSWR(
-    `/posts?author=${encodeURIComponent(username)}&limit=100`,
+    `/api/posts?author=${encodeURIComponent(username)}&limit=100`,
     fetcher
   );
 
-  console.log(profile);
 
   const [loadingFollow, setLoadingFollow] = useState(false);
   const [showFollowers, setShowFollowers] = useState(false);
@@ -50,11 +48,11 @@ export default function ProfilePage() {
 
   // Fetch followers/following lists when modal opens
   const { data: followersList, error: followersErr } = useSWR(
-    showFollowers ? `/profiles/${username}/followers/` : null,
+    showFollowers ? `/api/profiles/${username}/followers/` : null,
     fetcher
   );
   const { data: followingList, error: followingErr } = useSWR(
-    showFollowing ? `/profiles/${username}/following/` : null,
+    showFollowing ? `/api/profiles/${username}/following/` : null,
     fetcher
   );
 
@@ -87,7 +85,7 @@ export default function ProfilePage() {
     formData.append("image", file);
     setUploadingImage(true);
     try {
-      const { data: updatedUser } = await api.put("/user/", formData);
+      const { data: updatedUser } = await api.put("/api/user/", formData);
       setUser(updatedUser);
       mutateProfile();
     } catch (err) {
@@ -104,9 +102,9 @@ export default function ProfilePage() {
     try {
       if (profile.following) {
         // assuming DELETE at /profiles/[username]/follow/
-        await api.delete(`/profiles/${username}/unfollow/`);
+        await api.delete(`/api/profiles/${username}/unfollow/`);
       } else {
-        await api.post(`/profiles/${username}/follow/`);
+        await api.post(`/api/profiles/${username}/follow/`);
       }
       mutateProfile();
     } catch {
@@ -159,13 +157,13 @@ export default function ProfilePage() {
             )}
           </div>
 
-          <div className="flex-1">
+          <div className="flex flex-col items-center justify-center sm:flex-1 sm:block ">
             <h1 className="text-2xl font-semibold">{profile.username}</h1>
             {profile.bio && <p className="text-gray-600 mt-1">{profile.bio}</p>}
             <div className="flex space-x-6 mt-2 text-sm text-gray-700">
               <button
                 onClick={() => {
-                  /* open following modal */
+                  setShowFollowing(true)
                 }}
                 className="hover:underline"
               >
@@ -173,7 +171,7 @@ export default function ProfilePage() {
               </button>
               <button
                 onClick={() => {
-                  /* open followers modal */
+                  setShowFollowers(true)
                 }}
                 className="hover:underline"
               >
@@ -244,6 +242,8 @@ export default function ProfilePage() {
                       <Image
                         src={user?.image}
                         alt={user?.username}
+                        width={60}
+                        height={60}
                         className="w-12 h-12 rounded-full object-cover"
                       />
                     ) : (
@@ -312,6 +312,8 @@ export default function ProfilePage() {
                       <Image
                         src={user?.image}
                         alt={user?.username}
+                        height={60}
+                        width={60}
                         className="w-12 h-12 rounded-full object-cover"
                       />
                     ) : (

@@ -25,7 +25,7 @@ const staticTags = [
 ];
 
 export default function TagSidebar({ selectedTag, onTagSelect }) {
-  const { data, error } = useSWR(`/tags`, fetcher);
+  const { data, error } = useSWR(`/api/tags`, fetcher);
 
   // Use API data if available, otherwise fall back to static data
   const tags = data?.results || staticTags

@@ -46,6 +46,8 @@ export default function RegisterPage() {
       await register(form)
       router.push("/feed")
     } catch (err) {
+      console.log(err);
+      
       const msg = err.response?.data?.error || "Registration failed. Please try again.";
       setError(typeof msg === "string" ? msg : JSON.stringify(msg, null, 2));
     } finally {

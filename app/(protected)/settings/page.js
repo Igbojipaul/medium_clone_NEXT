@@ -17,13 +17,13 @@ const fetcher = (url) => api.get(url).then((res) => res.data);
 
 export default function SettingsPage() {
   const router = useRouter();
-  const { data: user, error, mutate } = useSWR("/user/", fetcher);
+  const { data: user, error, mutate } = useSWR("/api/user/", fetcher);
   
   const [profileForm, setProfileForm] = useState({
     username: "",
     email: "",
     bio: "",
-    image: "",
+    image: null,
   });
   
   const [passwordForm, setPasswordForm] = useState({
@@ -52,7 +52,7 @@ export default function SettingsPage() {
         username: user.username,
         email: user.email,
         bio: user.bio || "",
-        image: user.image || "",
+        image: user.image || null,
       });
     }
   }, [user]);
@@ -118,7 +118,7 @@ export default function SettingsPage() {
     setSuccess("");
 
     try {
-      await api.put("/user/", profileForm);
+      await api.put("/api/user/", profileForm);
       mutate();
       setSuccess("Profile updated successfully!");
       setTimeout(() => setSuccess(""), 3000);
@@ -148,7 +148,7 @@ export default function SettingsPage() {
     }
 
     try {
-      await api.put("/user/password/", {
+      await api.put("/api/user/password/", {
         current_password: passwordForm.currentPassword,
         new_password: passwordForm.newPassword,
       });

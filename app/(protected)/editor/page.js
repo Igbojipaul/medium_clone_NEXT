@@ -117,7 +117,7 @@ export default function NewPostPage() {
 
     try {
       // 1) Create post
-      const { data } = await api.post("/posts/", payload);
+      const { data } = await api.post("/api/posts/", payload);
       const slug = data.slug;
 
       // 2) Upload attachments
@@ -132,7 +132,8 @@ export default function NewPostPage() {
           formData.append("embed_code", att.embedUrl);
         }
 
-        await api.post(`/posts/${slug}/attachments/`, formData);
+        await api.post(`/api/posts/${slug}attachments/`, formData);
+       
       }
 
       // Success

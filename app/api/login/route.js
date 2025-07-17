@@ -8,8 +8,9 @@ export async function POST(req) {
   const { data } = await axios.post(`${API}/token/`, { username, password });
 
   const res = NextResponse.json({ ok: true });
+  
   // Set HttpOnly cookies
-  res.cookies.set("access",  data.access,  { httpOnly: true, path: "/", sameSite: "lax", maxAge: 60 * 60 });
-  res.cookies.set("refresh", data.refresh, { httpOnly: true, path: "/", sameSite: "lax", maxAge: 60 * 60 * 24 });
+  res.cookies.set("access",  data.access,  { httpOnly: true, path: "/", secure: false, sameSite: "lax", maxAge: 60 * 60 * 6 });
+  res.cookies.set("refresh", data.refresh, { httpOnly: true, path: "/", secure: false, sameSite: "lax", maxAge: 60 * 60 * 24 });
   return res;
 }

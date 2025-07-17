@@ -1,5 +1,5 @@
 "use client";
-
+import {useEffect} from 'react'
 import useSWR from "swr";
 import { useParams } from "next/navigation";
 import api from "@/lib/api";
@@ -12,9 +12,10 @@ const fetcher = (url) => api.get(url).then((res) => res.data);
 export default function PostPage() {
   const { slug } = useParams();
 
+
   // 1) Post detail
   const { data: post, error: postErr, isLoading: postLoading } = useSWR(
-    `/posts/${slug}/`,
+    `/api/posts/${slug}/`,
     fetcher
   );
 
@@ -25,7 +26,7 @@ export default function PostPage() {
     mutate,
     isLoading: commentsLoading,
   } = useSWR(
-    `/posts/${slug}/comments/`,
+    `/api/posts/${slug}/comments/`,
     fetcher
   );
 

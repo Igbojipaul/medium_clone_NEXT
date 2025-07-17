@@ -26,10 +26,10 @@ export default function CommentForm({
     setIsSubmitting(true);
     
     try {
-      const { data } = await api.post(`/posts/${slug}/comments/`, {
+      const { data } = await api.post(`/api/posts/${slug}/comments/`, {
         body: body.trim(),
         parent: parentId,
-      });
+      });      
 
       // On success, clear and notify parent
       setBody("");

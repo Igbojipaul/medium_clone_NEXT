@@ -22,11 +22,11 @@ export default function LoginPage() {
     setIsLoading(true);
     try {
       await login(form.username, form.password);
-      router.push("/feed");
+        router.push("/feed");
     } catch (e) {
-      console.log(e);
-      
-      setError(e.message);
+      setError(
+        e.response.status === 500 ? "Incorrect username or password" : e.message
+      );
     } finally {
       setIsLoading(false);
     }

@@ -4,6 +4,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import useSWRInfinite from "swr/infinite";
 import PostCard from "@/components/PostCard";
 import TagSidebar from "@/components/TagSidebar";
+import Spinner from '@/components/Spinner'
 import PostCardSkeleton from "@/components/PostCardSkeleton";
 import api from "@/lib/api";
 import { Globe, Users, Filter, Search as SearchIcon } from "lucide-react";
@@ -12,7 +13,7 @@ const fetcher = (url) => api.get(url).then((res) => res.data);
 
 export default function FeedPage() {
   const limit = 10;
-  const [feedType, setFeedType] = useState("global"); // "global" or "your"
+  const [feedType, setFeedType] = useState("global");
   const [selectedTag, setSelectedTag] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   // Debounce searchQuery:
@@ -26,17 +27,22 @@ export default function FeedPage() {
   const getKey = (pageIndex, previousPageData) => {
     if (previousPageData && previousPageData.results.length === 0) return null;
     const offset = pageIndex * limit;
-    let url;
+    let url = `/api/posts?limit=${limit}&offset=${offset}`;
+    if (feedType === "global" && selectedTag) {
+      url += `&tag=${encodeURIComponent(selectedTag)}`;
+    }
+    if (debouncedSearch) {
+      url += `&search=${encodeURIComponent(debouncedSearch)}`;
+    }
     if (feedType === "your") {
-      url = `/posts/feed?limit=${limit}&offset=${offset}`;
-    } else {
-      url = `/posts?limit=${limit}&offset=${offset}`;
+      url = `/api/posts/feed?limit=${limit}&offset=${offset}`;
+
       if (selectedTag) {
         url += `&tag=${encodeURIComponent(selectedTag)}`;
       }
       if (debouncedSearch) {
-        url += `&search=${encodeURIComponent(debouncedSearch)}`;
-      }
+      url += `&search=${encodeURIComponent(debouncedSearch)}`;
+    }
     }
     return url;
   };
@@ -101,6 +107,11 @@ export default function FeedPage() {
     // clear search when selecting a tag? optional
     // setSearchQuery("");
   };
+  const [loadingSpinner, setLoadingSpinner] = useState(false);
+
+  if(loadingSpinner){
+    return <Spinner />
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -126,27 +137,7 @@ export default function FeedPage() {
           </div>
         </div>
 
-        {isLoadingInitial && (
-          <div className="min-h-screen bg-gray-50">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-              <div className="flex flex-col lg:flex-row gap-8">
-                <main className="flex-1 max-w-4xl">
-                  <div className="bg-white rounded-xl shadow-sm p-6 mb-8 animate-pulse">
-                    <div className="h-8 bg-gray-200 rounded w-48"></div>
-                    <div className="h-4 bg-gray-200 rounded w-64 mt-2"></div>
-                  </div>
-                  {[...Array(5)].map((_, i) => (
-                    <PostCardSkeleton key={i} />
-                  ))}
-                </main>
-              </div>
-            </div>
-          </div>
-        )}
-
-        <div className="flex flex-col lg:flex-row gap-8">
-          <main className="flex-1 max-w-4xl">
-            {/* Tabs */}
+        {/* Tabs */}
             <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                 <div className="flex bg-gray-100 rounded-lg p-1">
@@ -189,6 +180,27 @@ export default function FeedPage() {
                 )}
               </div>
             </div>
+
+        {isLoadingInitial && (
+          <div className="min-h-screen bg-gray-50">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+              <div className="flex flex-col lg:flex-row gap-8">
+                <main className="flex-1 max-w-4xl">
+                  <div className="bg-white rounded-xl shadow-sm p-6 mb-8 animate-pulse">
+                    <div className="h-8 bg-gray-200 rounded w-48"></div>
+                    <div className="h-4 bg-gray-200 rounded w-64 mt-2"></div>
+                  </div>
+                  {[...Array(5)].map((_, i) => (
+                    <PostCardSkeleton key={i} />
+                  ))}
+                </main>
+              </div>
+            </div>
+          </div>
+        )}
+
+        <div className="flex flex-col lg:flex-row gap-8">
+          <main className="flex-1 max-w-4xl">
 
             {error && (
               <div className="bg-red-50 border border-red-200 rounded-xl p-6 mb-8">
@@ -260,7 +272,7 @@ export default function FeedPage() {
 
             <div className="space-y-6">
               {posts.map((post) => (
-                <PostCard key={post.slug} post={post} />
+                <PostCard key={post.slug} post={post} setLoadingSpinner={setLoadingSpinner} />
               ))}
             </div>
 

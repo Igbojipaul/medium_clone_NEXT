@@ -33,7 +33,7 @@ export default function PostDetail({ post: initialPost, commentsCount }) {
   const handleDelete = async () => {
     if (!confirm("Are you sure you want to delete this post?")) return;
     try {
-      await api.delete(`/posts/${post.slug}/`);
+      await api.delete(`/api/posts/${post.slug}/`);
       router.push("/"); // redirect after delete
     } catch (err) {
       console.error("Failed to delete:", err);
@@ -47,10 +47,10 @@ export default function PostDetail({ post: initialPost, commentsCount }) {
     setLoading(true);
     try {
       if (post.favorited) {
-        const { data } = await api.delete(`/posts/${post.slug}/favorite/`);
+        const { data } = await api.delete(`/api/posts/${post.slug}/favorite/`);
         setPost(data);
       } else {
-        const { data } = await api.post(`/posts/${post.slug}/favorite/`);
+        const { data } = await api.post(`/api/posts/${post.slug}/favorite/`);
         setPost(data);
       }
     } catch (err) {

@@ -151,7 +151,7 @@ export default function CommentList({ comments, slug, onCommentAdded }) {
   const topLevelComments = comments?.filter((c) => !c.parent) || [];
 
   return (
-    <section className="space-y-6">
+    <section className="space-y-6" id="comments">
       {/* Main Comment Form */}
       <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
         <div className="flex items-center space-x-3 mb-4">
