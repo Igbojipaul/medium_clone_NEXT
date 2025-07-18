@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import CommentForm from "./CommentForm";
+import Link from "next/link";
 import { 
   MessageCircle, 
   ChevronDown, 
@@ -76,9 +77,9 @@ export default function CommentList({ comments, slug, onCommentAdded }) {
 
             <div className="flex-1 min-w-0">
               <div className="flex items-center space-x-2 mb-1">
-                <h4 className="font-semibold text-gray-900 text-sm">
+                <Link href={`/profile/${comment.author}`} className="font-semibold text-gray-900 text-sm cursor-pointer">
                   {comment.author}
-                </h4>
+                </Link>
                 <div className="flex items-center text-gray-500 text-xs">
                   <Clock size={12} className="mr-1" />
                   <span>{formatTimeAgo(comment.created_at)}</span>

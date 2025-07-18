@@ -185,7 +185,7 @@ export default function ProfilePage() {
               variant={profile.following ? "outline" : "default"}
               onClick={handleFollow}
               disabled={loadingFollow}
-              className="ml-auto"
+              className="ml-auto bg-gray-900 text-gray-100 cursor-pointer"
             >
               {loadingFollow
                 ? "..."
@@ -204,11 +204,11 @@ export default function ProfilePage() {
         ) : posts.results.length === 0 ? (
           <div>
             <p className="text-gray-600">No posts yet.</p>
-            <Link href="/editor">
+            {isOwnProfile && <Link href="/editor">
               <p className="flex gap-3 mt-20 items-center justify-center font-semi-bold text-2xl text-gray-700 hover:text-gray-900 transition">
                 <Pen /> Click to start writing
               </p>
-            </Link>
+            </Link>}
           </div>
         ) : (
           posts.results.map((post) => <PostCard key={post.slug} post={post} />)
